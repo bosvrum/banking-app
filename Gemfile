@@ -30,3 +30,5 @@ group :test do
  gem 'capybara', '~> 2.7', '>= 2.7.1'
 end
 
+gem 'devise', '~> 4.2'
+
