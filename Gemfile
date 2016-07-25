@@ -32,5 +32,6 @@ end
 
 gem 'bootstrap-sass', '~> 3.3', '>= 3.3.6'
 gem 'devise', '~> 4.2'
+gem 'devise-bootstrapped', '~> 0.1.1'
 
 
