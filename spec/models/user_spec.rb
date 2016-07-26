@@ -1,66 +1,46 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:account) do
-      user = User.create(username: 'mike', password: '1234abcd', password_confirmation: '1234abcd')
-      user.create_account()
-    end
-
-  describe "deposit values" do
-    it 'a new account must start with balance equal to 0' do
-      expect(account.balance).to eq(0)
-    end
-
-    it 'can deposit a certain ammount (#deposit)' do
-      account.deposit(100)
-      
-      expect(account.balance).to eq(100)
-    end
-
-    it 'a new deposit increments the balance' do
-      account.deposit(100)
-      account.deposit(300)
-      
-      expect(account.balance).to eq(400)
-    end
+  it 'is invalid without an email' do
+    user = User.create(
+        password: 'password',
+        password_confirmation: 'password')
+    expect(user).to_not be_valid
+    expect(user.errors[:email]).to include("can't be blank")
+  end
+  
+  it 'is invalid without a password when creating a new user' do
+    user = User.create(email: 'jack.sparrow@test.com')
+    expect(user).to_not be_valid
+    expect(user.errors[:password]).to include("can't be blank")
   end
 
-  describe "Withdraw" do
-    it "Can't withdraw when balance is 0" do
-      account.withdraw(100)
-
-      expect(account.balance).to eq(0)
-    end
-
-    it "Can't widthdraw with insuficient balance" do
-      account.deposit(50)
-
-      account.withdraw(100)
-
-      expect(account.balance).to eq(50)
-    end
-
-    it "Decrements the balance" do
-      account.deposit(100)
-
-      account.withdraw(50)
-
-      expect(account.balance).to eq(50)
-    end
+  it 'is invalid with a duplicate email address' do
+    User.create(email: 'jack_sparrow@test.com', password: 'abcd1234')
+    user = User.create(
+        email: 'jack_sparrow@test.com',
+        password: 'abcd1234')
+    expect(user).to_not be_valid
+    expect(user.errors[:email]).to include("has already been taken")
   end
 
-  describe 'Change balance' do
-    it 'persits balance with a deposit' do
-      account.deposit(100)
-
-      expect(account.reload.balance).to eq(100)
-    end
-
-    it 'persits balance with a withdraw' do
-      account.deposit(100)
-      account.withdraw(50)
-
-      expect(account.reload.balance).to eq(50)
+  describe 'Update' do
+    it "changes the password only and only if we provide a new password" do
+      
+      # change the email won't change the password
+      user = User.create(email: 'jack_sparrow@test.com', password: 'abcd1234')
+      user.reload
+      user.email = "test@test.com"
+      encrypted_password = user.encrypted_password
+      user.save
+      user.reload
+      expect(user.email).to eq("test@test.com")
+      expect(user.encrypted_password).to eq(encrypted_password)
+      
+      user.password = "new_password"
+      user.save
+      user.reload
+      expect(user.encrypted_password).to_not eq(encrypted_password)
     end
   end
 end

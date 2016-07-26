@@ -1,0 +1,3 @@
+class Credit < AccountTransaction
+  
+end

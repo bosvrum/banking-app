@@ -6,5 +6,14 @@ class CreateInitialModel < ActiveRecord::Migration
 
       t.timestamps null: false
     end
+
+    create_table :account_transactions do |t|
+      t.decimal :value
+      t.text :description
+      t.string :type, index: true
+      t.belongs_to :account, index: true, foreign_key: true
+
+      t.timestamps null: false
+    end
   end
 end
